@@ -86,23 +86,13 @@ python scripts/scrape_osf.py --ids abc12 def34 ghi56
 python scripts/scrape_osf.py --file data/osf_ids.txt
 ```
 
-#### Specify output directory
+#### Specify output file
 
 ```bash
-python scripts/scrape_osf.py --ids abc12 --output data/raw
+python scripts/scrape_osf.py --file data/osf_ids.txt --output data/raw/preregistrations.json
 ```
 
-#### Use API token
-
-```bash
-python scripts/scrape_osf.py --ids abc12 --token YOUR_TOKEN
-```
-
-Or set the environment variable:
-```bash
-export OSF_API_TOKEN=your_token_here
-python scripts/scrape_osf.py --ids abc12
-```
+Note: The scraper currently doesn't support API tokens, but this can be added if needed.
 
 ### Output
 
@@ -122,7 +112,17 @@ The scraper saves each preregistration as a JSON file in the output directory (d
 
 2. **Phase 1:** Scrape preregistration data using discovered IDs
    ```bash
-   python scripts/scrape_osf.py --file data/osf_ids.txt --output data/raw
+   python scripts/scrape_osf.py --file data/osf_ids.txt --output data/raw/preregistrations.json
+   ```
+
+3. **Process:** Flatten the JSON data into a DataFrame and save as JSONL
+   ```bash
+   python scripts/process_registrations.py
+   ```
+
+4. **Analyse:** Extract column names from processed data
+   ```bash
+   python scripts/analyse.py
    ```
 
 ---
@@ -134,15 +134,19 @@ prereg-quality-llm/
 ├── src/
 │   └── osf/
 │       ├── __init__.py
-│       ├── id_scraper.py    # Phase 0: ID discovery
-│       └── scraper.py       # Phase 1: Preregistration scraper
+│       └── id_scraper.py    # OSF ID discovery module
 ├── scripts/
-│   ├── discover_ids.py      # Phase 0 CLI script
-│   └── scrape_osf.py        # Phase 1 CLI script
+│   ├── discover_ids.py      # Discover preregistration IDs
+│   ├── scrape_osf.py        # Scrape registration data
+│   ├── process_registrations.py  # Flatten JSON to DataFrame
+│   └── analyse.py           # Analyse processed data
 ├── data/
-│   ├── osf_ids.txt          # Phase 0 output (discovered IDs)
-│   └── raw/                 # Phase 1 output (scraped data)
+│   ├── osf_ids.txt          # Discovered IDs
+│   ├── raw/                 # Raw scraped JSON data
+│   ├── processed/           # Processed JSONL data
+│   └── analysed/            # Analysis outputs
 ├── requirements.txt         # Python dependencies
+├── pyproject.toml          # Project metadata
 └── README.md               # This file
 ```
 

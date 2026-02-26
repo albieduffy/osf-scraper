@@ -34,7 +34,7 @@ ENV/
 *~
 
 # Data (scraped preregistrations)
-data/raw/*.json
+data/raw/*.jsonl
 data/processed/
 data/scores_*/
 data/merged/

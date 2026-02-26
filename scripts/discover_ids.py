@@ -2,10 +2,10 @@
 """CLI script to discover preregistration IDs from OSF API"""
 
 import argparse
-import sys
 from pathlib import Path
+import sys
 
-# Add src to path
+# Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.osf.id_scraper import OSFIDScraper
@@ -13,28 +13,12 @@ from src.osf.id_scraper import OSFIDScraper
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Discover preregistration IDs from OSF registrations endpoint (Phase 0)",
+        description="Discover preregistration IDs from OSF registrations endpoint",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Examples:
-  # Discover all preregistration IDs
-  python scripts/discover_ids.py
-  
-  # Limit to first 100 IDs
-  python scripts/discover_ids.py --max-results 100
-  
-  # Save to custom file
-  python scripts/discover_ids.py --output data/osf_ids.txt
-  
-  # Get all registrations (not just preregistrations)
-  python scripts/discover_ids.py --no-filter
-  
-  # Start from a specific page (e.g., resume from page 187)
-  python scripts/discover_ids.py --start-page 187
-  
-  # Use API token for authenticated requests
-  python scripts/discover_ids.py --token YOUR_TOKEN
-  # Or set OSF_API_TOKEN environment variable
+        Examples:
+        python scripts/discover_ids.py
+        python scripts/discover_ids.py --output data/osf_ids.txt
         """,
     )
     parser.add_argument(
@@ -43,43 +27,18 @@ Examples:
         default=Path("data/osf_ids.txt"),
         help="Output file for OSF IDs (default: data/osf_ids.txt)",
     )
-    parser.add_argument(
-        "--max-results",
-        type=int,
-        default=None,
-        help="Maximum number of IDs to discover (default: all)",
-    )
-    parser.add_argument(
-        "--no-filter",
-        action="store_true",
-        help="Don't filter for preregistrations (get all registrations)",
-    )
-    parser.add_argument(
-        "--token",
-        type=str,
-        help="OSF API token (optional, can also use OSF_API_TOKEN env var)",
-    )
 
     args = parser.parse_args()
 
-    # Initialize scraper
-    scraper = OSFIDScraper(api_token=args.token)
+    scraper = OSFIDScraper()
 
     print("=" * 60)
-    print("OSF Preregistration ID Discovery (Phase 0)")
+    print("OSF Preregistration ID Discovery")
     print("=" * 60)
-    print(f"Filter for preregistrations: {not args.no_filter}")
-    if args.max_results:
-        print(f"Maximum results: {args.max_results}")
     print()
 
-    # Discover IDs
-    ids = scraper.discover_preregistration_ids(
-        max_results=args.max_results,
-        filter_category=not args.no_filter,
-    )
+    ids = scraper.discover_preregistration_ids()
 
-    # Save IDs
     scraper.save_ids(ids, args.output)
 
     print(f"\n{'=' * 60}")
