@@ -1,6 +1,7 @@
 """OSF API scraper for discovering preregistration IDs"""
 
 import os
+import random
 import time
 from pathlib import Path
 from typing import List, Optional
@@ -84,19 +85,35 @@ class OSFIDScraper:
     def _fetch_with_retry(
         self, url: str, page: int, max_retries: int, retry_wait: int
     ) -> Optional[dict]:
-        """Fetch URL with retry logic. Returns JSON data or None on failure."""
+        """Fetch URL with retry logic and exponential backoff. Returns JSON data or None on failure."""
         for attempt in range(max_retries + 1):
             try:
                 response = self.session.get(url)
+
+                if response.status_code == 429:
+                    retry_after_str = response.headers.get("Retry-After", "")
+                    try:
+                        base_delay = float(retry_after_str) if retry_after_str else retry_wait * (2 ** attempt)
+                    except ValueError:
+                        base_delay = retry_wait * (2 ** attempt)
+                    base_delay = max(base_delay, retry_wait * (2 ** attempt))
+                    delay = base_delay + random.uniform(0, base_delay * 0.5)
+                    if attempt < max_retries:
+                        print(f"\nRate limited on page {page}. Retrying in {delay:.1f}s... (attempt {attempt + 1}/{max_retries})")
+                        time.sleep(delay)
+                        continue
+                    else:
+                        print(f"\nMax retries reached (rate limited) for page {page}. Stopping.")
+                        return None
+
                 response.raise_for_status()
                 return response.json()
-            except Exception as e:
+            except requests.RequestException as e:
                 if attempt < max_retries:
+                    delay = retry_wait * (2 ** attempt) + random.uniform(0, retry_wait)
                     print(f"\nError fetching page {page}: {e}")
-                    print(
-                        f"Retrying in {retry_wait} seconds... (attempt {attempt + 1}/{max_retries})"
-                    )
-                    time.sleep(retry_wait)
+                    print(f"Retrying in {delay:.1f} seconds... (attempt {attempt + 1}/{max_retries})")
+                    time.sleep(delay)
                 else:
                     print(f"\nMax retries reached for page {page}. Stopping.")
                     return None

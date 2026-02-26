@@ -3,10 +3,6 @@
 
 import argparse
 from pathlib import Path
-import sys
-
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.osf.id_scraper import OSFIDScraper
 
@@ -19,6 +15,9 @@ def main():
         Examples:
         python scripts/discover_ids.py
         python scripts/discover_ids.py --output data/osf_ids.txt
+        python scripts/discover_ids.py --max-results 1000
+        python scripts/discover_ids.py --no-filter
+        python scripts/discover_ids.py --token YOUR_TOKEN
         """,
     )
     parser.add_argument(
@@ -27,17 +26,38 @@ def main():
         default=Path("data/osf_ids.txt"),
         help="Output file for OSF IDs (default: data/osf_ids.txt)",
     )
+    parser.add_argument(
+        "--max-results",
+        type=int,
+        default=None,
+        help="Maximum number of IDs to discover (default: all)",
+    )
+    parser.add_argument(
+        "--no-filter",
+        action="store_true",
+        default=False,
+        help="Include all registrations, not just preregistrations",
+    )
+    parser.add_argument(
+        "--token",
+        type=str,
+        default=None,
+        help="OSF API token (overrides OSF_API_TOKEN env var)",
+    )
 
     args = parser.parse_args()
 
-    scraper = OSFIDScraper()
+    scraper = OSFIDScraper(api_token=args.token)
 
     print("=" * 60)
     print("OSF Preregistration ID Discovery")
     print("=" * 60)
     print()
 
-    ids = scraper.discover_preregistration_ids()
+    ids = scraper.discover_preregistration_ids(
+        max_results=args.max_results,
+        filter_category=not args.no_filter,
+    )
 
     scraper.save_ids(ids, args.output)
 

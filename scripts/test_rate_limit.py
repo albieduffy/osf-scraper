@@ -21,16 +21,16 @@ async def find_rate_limit_threshold():
         semaphore = asyncio.Semaphore(concurrency)
         rate_limited_count = 0
         
-        async def make_request(i):
-            async with semaphore:
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(url, headers=headers) as response:
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async def make_request(i):
+                async with semaphore:
+                    async with session.get(url) as response:
                         if response.status == 429:
                             return True
                         return False
-        
-        tasks = [make_request(i) for i in range(100)]
-        results = await asyncio.gather(*tasks)
+            
+            tasks = [make_request(i) for i in range(100)]
+            results = await asyncio.gather(*tasks)
         rate_limited_count = sum(results)
         
         rate_limit_rate = rate_limited_count / 100

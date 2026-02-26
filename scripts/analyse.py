@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import argparse
 import pandas as pd
 
 
@@ -9,7 +10,8 @@ def analyse_registrations(input_file: Path, output_file: Path):
         data = [json.loads(line) for line in f]
 
     df = pd.DataFrame(data)
-    
+
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     with open(output_file, "w") as f:
         json.dump(df.columns.tolist(), f, indent=4)
 
@@ -19,7 +21,10 @@ def analyse_registrations(input_file: Path, output_file: Path):
 
 
 if __name__ == "__main__":
-    analyse_registrations(
-        Path("data/processed/preregistrations.jsonl"),
-        Path("data/analysed/columns.json")
-    )
+    parser = argparse.ArgumentParser(description="Extract column names from processed registrations")
+    parser.add_argument("--input", type=Path, default=Path("data/processed/preregistrations.jsonl"),
+                        help="Input JSONL file (default: data/processed/preregistrations.jsonl)")
+    parser.add_argument("--output", type=Path, default=Path("data/analysed/columns.json"),
+                        help="Output JSON file (default: data/analysed/columns.json)")
+    args = parser.parse_args()
+    analyse_registrations(args.input, args.output)
