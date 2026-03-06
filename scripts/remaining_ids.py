@@ -8,9 +8,9 @@ import sys
 def main():
     parser = argparse.ArgumentParser(description="Compute remaining unprocessed OSF IDs")
     parser.add_argument("--all-ids", type=Path, default=Path("data/osf_ids.txt"),
-                        help="File with all OSF IDs (default: data/osf_ids.txt)")
-    parser.add_argument("--successful-ids", type=Path, default=Path("data/raw/successful_ids.txt"),
-                        help="File with successfully processed IDs (default: data/raw/successful_ids.txt)")
+                        help="File with all OSF IDs (default: data/osf_ids_remaining.txt)")
+    parser.add_argument("--successful-ids", type=Path, default=Path("data/raw/successful_ids-total.txt"),
+                        help="File with successfully processed IDs (default: data/raw/successful_ids-total.txt)")
     parser.add_argument("--output", type=Path, default=Path("data/osf_ids_remaining.txt"),
                         help="Output file for remaining IDs (default: data/osf_ids_remaining.txt)")
     args = parser.parse_args()
