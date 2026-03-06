@@ -2,7 +2,6 @@
 
 import json
 
-import pytest
 from osf_scraper.processing import analyse_registrations, process_registrations
 
 
@@ -23,7 +22,11 @@ def test_process_registrations_basic(tmp_path):
     process_registrations(input_file, output_file)
 
     assert output_file.exists()
-    lines = [json.loads(l) for l in output_file.read_text().splitlines() if l.strip()]
+    lines = [
+        json.loads(line)
+        for line in output_file.read_text().splitlines()
+        if line.strip()
+    ]
     assert len(lines) == 2
     assert lines[0]["id"] == "abc"
     assert lines[0]["attributes.title"] == "Study 1"
@@ -49,7 +52,9 @@ def test_process_registrations_empty_input(tmp_path):
     process_registrations(input_file, output_file)
 
     assert output_file.exists()
-    lines = [l for l in output_file.read_text().splitlines() if l.strip()]
+    lines = [
+        line for line in output_file.read_text().splitlines() if line.strip()
+    ]
     assert lines == []
 
 

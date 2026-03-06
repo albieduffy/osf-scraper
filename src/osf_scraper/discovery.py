@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class OSFIDScraper:
-    """Scraper for discovering OSF preregistration IDs from the registrations endpoint."""
+    """Discover OSF preregistration IDs from the registrations endpoint."""
 
     BASE_URL = "https://api.osf.io/v2/"
     REGISTRATIONS_ENDPOINT = "registrations/"

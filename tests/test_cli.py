@@ -1,6 +1,5 @@
 """Tests for CLI entry points."""
 
-import sys
 from unittest.mock import patch
 
 import pytest

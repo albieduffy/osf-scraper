@@ -3,7 +3,6 @@
 import asyncio
 import time
 
-import pytest
 from osf_scraper.scraper import TokenBucket
 
 
